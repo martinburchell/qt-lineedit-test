@@ -17,7 +17,7 @@ public:
                                          Qt::ImhNoAutoUppercase |
                                          Qt::ImhNoPredictiveText);
 
-        connect(m_line_edit, &QLineEdit::textChanged, this,
+        connect(m_line_edit, &QLineEdit::textEdited, this,
                 &TestDialog::processChangedText);
 
         auto mainlayout = new QVBoxLayout();
