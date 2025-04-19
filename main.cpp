@@ -17,6 +17,8 @@ public:
                                          Qt::ImhNoAutoUppercase |
                                          Qt::ImhNoPredictiveText);
 
+        m_line_edit->installEventFilter(this);
+
         connect(m_line_edit, &QLineEdit::textEdited, this,
                 &TestDialog::processChangedText);
 
@@ -26,6 +28,20 @@ public:
 
         setLayout(mainlayout);
         m_old_text = "";
+    }
+
+    bool eventFilter(QObject *obj, QEvent *event) override
+    {
+        if (obj != m_line_edit || event->type() != QEvent::InputMethod)
+            return false;
+
+        if (m_ignoreNextInputEvent) {
+            m_ignoreNextInputEvent = false;
+            event->ignore();
+            return true;
+        }
+
+        return false;
     }
 
 protected:
@@ -62,6 +78,7 @@ protected:
 
         // Set text will put the cursor to the end so only set it if it has changed
         if (new_text != initial_text) {
+            maybeIgnoreNextInputEvent();
             m_line_edit->setText(new_text);
         }
 
@@ -69,6 +86,13 @@ protected:
     }
 private:
     QString m_old_text;
+    bool m_ignoreNextInputEvent = false;
+
+    void maybeIgnoreNextInputEvent()
+    {
+        if (QGuiApplication::inputMethod()->isVisible())
+            m_ignoreNextInputEvent = true;
+    }
 
 };
 
