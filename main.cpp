@@ -17,8 +17,9 @@ public:
                                          Qt::ImhNoAutoUppercase |
                                          Qt::ImhNoPredictiveText);
 
+#ifdef Q_OS_ANDROID
         m_line_edit->installEventFilter(this);
-
+#endif
         connect(m_line_edit, &QLineEdit::textEdited, this,
                 &TestDialog::processChangedText);
 
@@ -30,6 +31,7 @@ public:
         m_old_text = "";
     }
 
+#ifdef Q_OS_ANDROID
     bool eventFilter(QObject *obj, QEvent *event) override
     {
         if (obj != m_line_edit || event->type() != QEvent::InputMethod)
@@ -43,6 +45,7 @@ public:
 
         return false;
     }
+#endif
 
 protected:
     QPointer<QLineEdit> m_line_edit;
@@ -78,7 +81,9 @@ protected:
 
         // Set text will put the cursor to the end so only set it if it has changed
         if (new_text != initial_text) {
+#ifdef Q_OS_ANDROID
             maybeIgnoreNextInputEvent();
+#endif
             m_line_edit->setText(new_text);
         }
 
@@ -86,6 +91,8 @@ protected:
     }
 private:
     QString m_old_text;
+
+#ifdef Q_OS_ANDROID
     bool m_ignoreNextInputEvent = false;
 
     void maybeIgnoreNextInputEvent()
@@ -93,6 +100,7 @@ private:
         if (QGuiApplication::inputMethod()->isVisible())
             m_ignoreNextInputEvent = true;
     }
+#endif
 
 };
 
